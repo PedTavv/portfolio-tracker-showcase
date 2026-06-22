@@ -4007,8 +4007,6 @@ document.addEventListener("click", event => {
   portfolioViewMode = nextView;
   clearPerformanceCaches();
   render();
-
-  console.log("Portfolio view mode:", portfolioViewMode);
 });
 
 
@@ -4059,20 +4057,3 @@ loadDefaultData().catch(error => {
   console.error(error);
   document.querySelector("#asOf").textContent = "Could not load latest activities export and prices.csv. Use the import buttons.";
 });
-
-
-window.stockPickingStartDate = () => firstStockOnlyDate();
-window.stockPickingSymbolsEver = () => [...allIndividualStockSymbolsEver()].map(displaySymbol).sort();
-
-
-window.stockPickingRealizedDebug = () => {
-  const allowed = allIndividualStockSymbolsEver();
-  const breakdown = returnBreakdown();
-  return breakdown.realizedRows.map(row => ({
-    symbol: row.symbol,
-    canonical: canonicalSymbol(row.symbol),
-    allowed: allowed.has(canonicalSymbol(row.symbol)),
-    individual: isIndividualStock(row.symbol),
-    amount: row.amount
-  }));
-};
