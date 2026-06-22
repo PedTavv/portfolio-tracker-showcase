@@ -1,0 +1,15 @@
+transaction_date,settlement_date,account_id,account_type,activity_type,activity_sub_type,direction,symbol,underlying symbol,name,currency,quantity,unit_price,commission,net_cash_amount
+2026-01-02,,,Demo,MoneyMovement,EFT,,,,,CAD,10000,,,10000
+2026-01-03,2026-01-03,,Demo,Trade,BUY,LONG,VCN,VCN,Vanguard FTSE Canada All Cap Index ETF,CAD,100,45.00,0,-4500
+2026-01-03,2026-01-03,,Demo,Trade,BUY,LONG,VFV,VFV,Vanguard S&P 500 Index ETF,CAD,30,110.00,0,-3300
+2026-01-10,2026-01-10,,Demo,Trade,BUY,LONG,CASH,CASH,High Interest Savings ETF,CAD,40,50.00,0,-2000
+2026-02-14,,,Demo,Dividend,,,VCN,VCN,Vanguard FTSE Canada All Cap Index ETF,CAD,38.50,,,38.50
+2026-02-15,2026-02-15,,Demo,Trade,BUY,LONG,VCN,VCN,Vanguard FTSE Canada All Cap Index ETF,CAD,0.84,45.83,0,-38.50
+2026-03-01,,,Demo,MoneyMovement,EFT,,,,,CAD,2500,,,2500
+2026-03-04,2026-03-04,,Demo,Trade,BUY,LONG,AAPL,AAPL,Apple Inc.,USD,8,178.00,0,-1966.72
+2026-03-20,2026-03-20,,Demo,Trade,BUY,LONG,SHOP,SHOP,Shopify Inc.,CAD,12,90.00,0,-1080
+2026-04-12,,,Demo,Dividend,,,CASH,CASH,High Interest Savings ETF,CAD,18.00,,,18.00
+2026-04-13,2026-04-13,,Demo,Trade,BUY,LONG,CASH,CASH,High Interest Savings ETF,CAD,0.36,50.00,0,-18.00
+2026-05-05,2026-05-05,,Demo,Trade,SELL,LONG,VFV,VFV,Vanguard S&P 500 Index ETF,CAD,-5,116.00,0,580
+2026-05-06,2026-05-06,,Demo,Trade,BUY,LONG,XQQ,XQQ,iShares NASDAQ 100 Index ETF,CAD,10,128.00,0,-1280
+2026-05-28,,,Demo,Dividend,,,VFV,VFV,Vanguard S&P 500 Index ETF,CAD,21.25,,,21.25

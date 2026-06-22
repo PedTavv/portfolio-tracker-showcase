@@ -1,0 +1,7 @@
+Account Name,Account Type,Account Classification,Account Number,Symbol,Exchange,MIC,Name,Security Type,Quantity,Position Direction,Market Price,Market Price Currency,Book Value (CAD),Book Value Currency (CAD),Book Value (Market),Book Value Currency (Market),Market Value,Market Value Currency,Market Unrealized Returns,Market Unrealized Returns Currency
+Demo Portfolio,Demo,Demo,,VCN,TSX,XTSE,Vanguard FTSE Canada All Cap Index ETF,EXCHANGE_TRADED_FUND,100.84,LONG,47.25,CAD,4538.50,CAD,4538.50,CAD,4764.69,CAD,226.19,CAD
+Demo Portfolio,Demo,Demo,,VFV,TSX,XTSE,Vanguard S&P 500 Index ETF,EXCHANGE_TRADED_FUND,25,LONG,118.40,CAD,2750.00,CAD,2750.00,CAD,2960.00,CAD,210.00,CAD
+Demo Portfolio,Demo,Demo,,CASH,TSX,XTSE,High Interest Savings ETF,EXCHANGE_TRADED_FUND,40.36,LONG,50.05,CAD,2018.00,CAD,2018.00,CAD,2020.02,CAD,2.02,CAD
+Demo Portfolio,Demo,Demo,,AAPL,NASDAQ,XNAS,Apple Inc.,EQUITY,8,LONG,191.00,USD,1966.72,CAD,1424.00,USD,1528.00,USD,104.00,USD
+Demo Portfolio,Demo,Demo,,SHOP,TSX,XTSE,Shopify Inc.,EQUITY,12,LONG,96.00,CAD,1080.00,CAD,1080.00,CAD,1152.00,CAD,72.00,CAD
+Demo Portfolio,Demo,Demo,,XQQ,TSX,XTSE,iShares NASDAQ 100 Index ETF,EXCHANGE_TRADED_FUND,10,LONG,132.00,CAD,1280.00,CAD,1280.00,CAD,1320.00,CAD,40.00,CAD

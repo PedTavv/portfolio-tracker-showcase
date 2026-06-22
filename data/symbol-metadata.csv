@@ -1,0 +1,7 @@
+symbol,sector,country,asset_class,theme,risk_bucket
+VCN,Broad Market,Canada,ETF,Core ETF,Low
+VFV,Broad Market,US,ETF,Core ETF,Low
+CASH,Cash,Canada,ETF,Cash/T-Bill,Low
+AAPL,Consumer Technology,US,Stock,Tech,Medium
+SHOP,Software,Canada,Stock,Tech,Medium
+XQQ,Technology,US,ETF,Tech,Medium
