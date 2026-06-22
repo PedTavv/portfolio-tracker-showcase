@@ -1,0 +1,10 @@
+.DS_Store
+.venv/
+__pycache__/
+*.pyc
+data/activities-export-*.csv
+data/holdings-report-*.csv
+!data/activities-export-2026-06-01.csv
+!data/holdings-current.csv
+!data/holdings.csv
+*.log

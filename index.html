@@ -1,0 +1,797 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Portfolio Command Center</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./styles.css?v=public-demo">
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">CSV portfolio tracker</p>
+          <h1>Portfolio Command Center</h1>
+          <p id="asOf" class="muted"></p>
+        </div>
+        <div class="controls">
+          <label class="field">
+            <span>USD to CAD</span>
+            <input id="fxRate" type="number" min="0" step="0.0001" value="1.38">
+          </label>
+          <label class="upload">
+            <input id="csvInput" type="file" accept=".csv,text/csv" multiple>
+            Import Holdings / Statements
+          </label>
+          <label class="upload secondary-upload">
+            <input id="priceInput" type="file" accept=".csv,text/csv" multiple>
+            Import Prices / Benchmarks
+          </label>
+        </div>
+      </header>
+
+      <div id="modeVisualBadge" class="mode-visual-badge">
+        <span class="mode-dot"></span>
+        <strong>Total Portfolio Mode</strong>
+        <small>All holdings included</small>
+      </div>
+
+      <nav class="period-tabs" aria-label="Performance period">
+        <button class="period" data-period="1D">1D</button>
+        <button class="period" data-period="1M">1M</button>
+        <button class="period" data-period="3M">3M</button>
+        <button class="period" data-period="6M">6M</button>
+        <button class="period active" data-period="YTD">YTD</button>
+        <button class="period" data-period="1Y">1Y</button>
+        <button class="period" data-period="2Y">2Y</button>
+        <button class="period" data-period="MAX">MAX</button>
+      </nav>
+
+      <nav class="view-tabs" aria-label="Portfolio view">
+        <button class="view-toggle active" data-view="total">Total Portfolio</button>
+        <button class="view-toggle" data-view="stocks">Individual Stocks Only</button>
+      </nav>
+
+      <section id="modeNotice" class="mode-notice" aria-live="polite">
+        <strong>Total portfolio mode</strong>
+        <span>Includes ETFs, stocks, cash-like holdings, and imported activity history.</span>
+      </section>
+
+      <nav class="feature-tabs" aria-label="Tracker sections">
+        <a href="#overview">Overview</a>
+        <a href="#benchmarks">Benchmark</a>
+        <a href="#attribution">Attribution</a>
+        <a href="#allocation">Allocation</a>
+        <a href="#holdings">Holdings</a>
+        <a href="#income">Income</a>
+        <a href="#risk">Risk</a>
+        <a href="#advancedAnalytics">Advanced</a>
+      </nav>
+
+      <section id="overview" class="kpi-grid" aria-label="Portfolio summary">
+        <article class="kpi">
+          <span>Total value</span>
+          <strong id="totalValue">-</strong>
+          <small>Estimated in CAD using the FX input</small>
+        </article>
+        <article class="kpi">
+          <span>Total cost</span>
+          <strong id="totalCost">-</strong>
+          <small>Book value from export</small>
+        </article>
+        <article class="kpi">
+          <span>Unrealized P/L</span>
+          <strong id="totalReturn">-</strong>
+          <small id="totalReturnPct">-</small>
+        </article>
+        <article class="kpi">
+          <span>Total Dividends</span>
+          <strong id="totalDividends">-</strong>
+          <small>From activities CSV</small>
+        </article>
+        <article class="kpi">
+          <span>Holdings</span>
+          <strong id="holdingCount">-</strong>
+          <small id="currencySplit">-</small>
+        </article>
+      </section>
+
+      <section class="market-strip">
+        <article>
+          <span>Selected period</span>
+          <strong id="periodMove">-</strong>
+          <small id="periodLabel">-</small>
+        </article>
+        <article class="period-return-card">
+          <span>Investment return</span>
+          <strong id="cashAdjustedReturn">-</strong>
+          <small id="cashAdjustedLabel">Upload statements for better accuracy</small>
+          <div id="selectedPeriodBenchmark" class="selected-period-benchmark">-</div>
+        </article>
+        <article>
+          <span>USD exposure</span>
+          <strong id="usdExposure">-</strong>
+          <small>Before FX conversion</small>
+        </article>
+        <article>
+          <span>Largest stock holding</span>
+          <strong id="topHolding">-</strong>
+          <small id="topHoldingDetail">-</small>
+        </article>
+        <article>
+          <span>Cash-like sleeve</span>
+          <strong id="concentrationScore">-</strong>
+          <small>Top 5 estimated CAD weight</small>
+        </article>
+      </section>
+
+      <section id="performance" class="dashboard performance-grid benchmark-only-layout">
+        <div id="benchmarks" class="panel" style="display: none;">
+          <div class="panel-head">
+            <div>
+              <h2>Performance</h2>
+              <p class="muted">TWR comes from the reconstructed daily equity curve. Dollar gain removes deposits and withdrawals.</p>
+            </div>
+            <span id="performanceStatus" class="pill">Approximate</span>
+          </div>
+          <div class="statement-grid compact-grid" style="grid-template-columns: repeat(6, minmax(0, 1fr));">
+            <article>
+              <span>1M</span>
+              <strong id="return1M">-</strong>
+              <small id="bench1M" class="muted benchmark-mini">-</small>
+            </article>
+            <article>
+              <span>3M</span>
+              <strong id="return3M">-</strong>
+              <small id="bench3M" class="muted benchmark-mini">-</small>
+            </article>
+            <article>
+              <span>6M</span>
+              <strong id="return6M">-</strong>
+              <small id="bench6M" class="muted benchmark-mini">-</small>
+            </article>
+            <article>
+              <span>YTD</span>
+              <strong id="returnYTD">-</strong>
+              <small id="benchYTD" class="muted benchmark-mini">-</small>
+            </article>
+            <article>
+              <span>1Y</span>
+              <strong id="return1Y">-</strong>
+              <small id="bench1Y" class="muted benchmark-mini">-</small>
+            </article>
+            <article>
+              <span>All-time</span>
+              <strong id="returnMAX">-</strong>
+              <small id="benchMAX" class="muted benchmark-mini">-</small>
+            </article>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <h2 id="benchmarkTitle">YTD Portfolio vs S&amp;P 500</h2>
+              <p id="benchmarkSubtitle" class="muted benchmark-subtitle">Compares your selected-period portfolio return against the S&amp;P 500 index.</p>
+            </div>
+            <div class="benchmark-controls">
+              <select id="benchmarkSelect" aria-label="Benchmark selector">
+                <option value="SP500">S&amp;P 500</option>
+                <option value="VFV">VFV</option>
+                <option value="VEQT">VEQT</option>
+                <option value="XQQ">XQQ / Nasdaq 100</option>
+                <option value="VFV_CASH_70_30">70/30 VFV-CASH</option>
+              </select>
+              <span id="benchmarkStatus" class="pill">Needs prices</span>
+            </div>
+          </div>
+          <div class="benchmark-table-wrap">
+            <table class="benchmark-table">
+              <thead>
+                <tr>
+                  <th>Benchmark</th>
+                  <th>Your return</th>
+                  <th>S&amp;P 500 return</th>
+                  <th>Difference</th>
+                  <th style="display:none;">Value added</th>
+                </tr>
+              </thead>
+              <tbody id="benchmarkBody">
+                <tr><td>S&amp;P 500 (^GSPC)</td><td>-</td><td>-</td><td>-</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="attribution" class="dashboard advanced-attribution-grid">
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Rolling Returns</h2>
+              <p class="muted">Sliding 3M, 6M, and 1Y windows versus the selected benchmark.</p>
+            </div>
+            <span class="pill">Consistency</span>
+          </div>
+          <div class="table-wrap compact-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Window</th>
+                  <th>Latest</th>
+                  <th>Benchmark</th>
+                  <th>Alpha</th>
+                  <th>Win rate</th>
+                  <th>Best / worst</th>
+                </tr>
+              </thead>
+              <tbody id="rollingReturnsBody"></tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Brinson-Style Attribution</h2>
+              <p class="muted">Approximate sector attribution: allocation, selection, and interaction effects.</p>
+            </div>
+            <span class="pill">Sector lens</span>
+          </div>
+          <div class="table-wrap compact-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Sector</th>
+                  <th>Weight</th>
+                  <th>Return</th>
+                  <th>Allocation</th>
+                  <th>Selection</th>
+                  <th>Interaction</th>
+                </tr>
+              </thead>
+              <tbody id="brinsonBody"></tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Currency Decomposition</h2>
+              <p class="muted">Splits CAD return into local-price return and FX effect where possible.</p>
+            </div>
+            <span class="pill">FX</span>
+          </div>
+          <div class="table-wrap compact-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Symbol</th>
+                  <th>Currency</th>
+                  <th>Local return</th>
+                  <th>CAD return</th>
+                  <th>FX effect</th>
+                  <th>P/L</th>
+                </tr>
+              </thead>
+              <tbody id="currencyDecompositionBody"></tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Drawdown Recovery Tracker</h2>
+              <p class="muted">Tracks major portfolio drawdowns and recovery time back to prior peaks.</p>
+            </div>
+            <span class="pill">Recovery</span>
+          </div>
+          <div class="table-wrap compact-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Peak</th>
+                  <th>Trough</th>
+                  <th>Drawdown</th>
+                  <th>Recovery</th>
+                  <th>Days to recover</th>
+                </tr>
+              </thead>
+              <tbody id="drawdownRecoveryBody"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <section class="panel" style="display: none;">
+        <div class="panel-head">
+          <div>
+            <h2>True Performance Engine</h2>
+            <p class="muted">Separates simple return, TWR, XIRR, contribution-adjusted gain, and realized/unrealized/income return components.</p>
+          </div>
+        </div>
+        <div class="statement-grid compact-grid performance-engine">
+          <article><span>Simple return</span><strong id="perfSimple">-</strong></article>
+          <article><span>Time-weighted return</span><strong id="perfTwr">-</strong></article>
+          <article><span>Money-weighted return</span><strong id="perfXirr">-</strong></article>
+          <article><span>Contribution-adjusted gain</span><strong id="perfAdjustedGain">-</strong></article>
+          <article><span>Total return components</span><strong id="perfTotalReturn">-</strong></article>
+        </div>
+        <div id="returnBreakdown" class="metric-stack split-stack"></div>
+      </section>
+
+      <section id="allocation" class="dashboard">
+        <div class="panel allocation-panel">
+          <div class="panel-head">
+            <h2>Allocation</h2>
+            <select id="allocationMode">
+              <option value="symbol">Symbol</option>
+              <option value="securityType">Security type</option>
+              <option value="currency">Currency</option>
+              <option value="exchange">Exchange</option>
+              <option value="sector">Sector</option>
+              <option value="country">Country</option>
+              <option value="theme">Theme</option>
+              <option value="riskBucket">Risk bucket</option>
+              <option value="targetBucket">Target bucket</option>
+            </select>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="allocationChart" width="520" height="360"></canvas>
+            <div id="allocationLegend" class="legend"></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Gain / Loss</h2>
+            <select id="returnMode">
+              <option value="absolute">Dollar return</option>
+              <option value="percent">Percent return</option>
+            </select>
+          </div>
+          <canvas id="returnChart" width="640" height="360"></canvas>
+        </div>
+      </section>
+
+      <section class="dashboard advanced-grid">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Portfolio Timeline</h2>
+            <span id="timelineStatus" class="pill">Snapshot history</span>
+          </div>
+          <canvas id="timelineChart" width="640" height="280"></canvas>
+        </div>
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Exposure Matrix</h2>
+            <select id="matrixMode">
+              <option value="currency">Currency</option>
+              <option value="securityType">Security type</option>
+              <option value="exchange">Exchange</option>
+              <option value="sector">Sector</option>
+              <option value="country">Country</option>
+              <option value="theme">Theme</option>
+              <option value="riskBucket">Risk bucket</option>
+              <option value="targetBucket">Target bucket</option>
+            </select>
+          </div>
+          <div id="exposureMatrix" class="matrix"></div>
+        </div>
+      </section>
+
+      <section id="risk" class="insights risk-grid">
+        <article class="panel">
+          <h2>Risk Console</h2>
+          <div id="riskConsole" class="metric-stack"></div>
+        </article>
+        <article class="panel">
+          <h2>Performance Heatmap</h2>
+          <div id="heatmap" class="heatmap"></div>
+        </article>
+      </section>
+
+      <section class="insights">
+        <article class="panel" style="display: none;">
+          <h2>Portfolio Quality Scorecard</h2>
+          <div id="qualityScores" class="score-list"></div>
+        </article>
+        <article class="panel" style="display: none;">
+          <h2>Watchlist & Alerts</h2>
+          <div id="alertsList" class="alert-list"></div>
+        </article>
+      </section>
+
+      <section id="activity" class="panel" style="display: none;">
+        <div class="panel-head">
+          <div>
+            <h2>Statement Analytics</h2>
+            <p id="statementCoverage" class="muted">Auto-loads the latest demo activities export when served locally. Your own CSVs can still be uploaded as fallback.</p>
+          </div>
+          <span id="statementStatus" class="pill">Waiting for activities export</span>
+        </div>
+        <div class="statement-grid">
+          <article>
+            <span>Contributions</span>
+            <strong id="statementContributions">-</strong>
+          </article>
+          <article>
+            <span>Net contributions</span>
+            <strong id="statementNetContributions">-</strong>
+          </article>
+          <article>
+            <span>Gross buys</span>
+            <strong id="statementBuys">-</strong>
+          </article>
+          <article>
+            <span>Gross sells</span>
+            <strong id="statementSells">-</strong>
+          </article>
+          <article>
+            <span>Trading volume</span>
+            <strong id="statementVolume">-</strong>
+          </article>
+          <article>
+            <span>Income</span>
+            <strong id="statementIncome">-</strong>
+          </article>
+          <article>
+            <span>Stock lending</span>
+            <strong id="statementLending">-</strong>
+          </article>
+        </div>
+        <div class="dashboard transaction-dashboard">
+          <div>
+            <h2>Monthly Trading Activity</h2>
+            <canvas id="activityChart" width="900" height="300"></canvas>
+          </div>
+          <div>
+            <h2>Most Traded Symbols</h2>
+            <div id="topTradedList" class="rank-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="income" class="dashboard">
+        <article class="panel">
+          <div class="panel-head">
+            <h2>Income Dashboard</h2>
+            <span class="pill">Dividends / interest / lending</span>
+          </div>
+          <div id="incomeDashboard" class="metric-stack"></div>
+        </article>
+        <article class="panel">
+          <h2>Monthly Income</h2>
+          <canvas id="incomeChart" width="680" height="260"></canvas>
+        </article>
+      </section>
+
+      <section class="insights" style="display: none;">
+        <article class="panel">
+          <h2>Income Leaders</h2>
+          <div id="incomeLeaders" class="rank-list"></div>
+        </article>
+        <article class="panel">
+          <h2>Recent Transactions</h2>
+          <div id="recentTransactions" class="transaction-list"></div>
+        </article>
+      </section>
+
+
+      <section id="yearlyReturnsPanel" class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Total Portfolio Returns by Year</h2>
+            <p class="muted">Annual time-weighted returns for the full portfolio. Includes ETFs, stocks, and cash-like holdings.</p>
+          </div>
+          <span class="pill">Calendar returns</span>
+        </div>
+        <div class="table-wrap compact-table yearly-return-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Year</th>
+                <th>Return</th>
+                <th>Period measured</th>
+              </tr>
+            </thead>
+            <tbody id="yearlyReturnsBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="dashboard">
+        <article class="panel">
+          <h2>Realized Gains</h2>
+          <div id="realizedSummary" class="statement-grid compact-grid"></div>
+          <div class="table-wrap compact-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Symbol</th>
+                  <th>Shares sold</th>
+                  <th>Sale proceeds</th>
+                  <th>Cost basis sold</th>
+                  <th>Realized P/L</th>
+                  <th>Realized return</th>
+                  <th>Annualized return</th>
+                  <th>Avg holding</th>
+                </tr>
+              </thead>
+              <tbody id="realizedBody"></tbody>
+            </table>
+          </div>
+        </article>
+        <article class="panel">
+          <h2>Trade Journal</h2>
+          <div id="tradeJournal" class="metric-stack"></div>
+        </article>
+        <article class="panel">
+          <h2>Hold vs Sold</h2>
+          <div id="holdVsSoldSummary" class="metric-stack"></div>
+          <div class="table-wrap compact-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Symbol</th>
+                  <th>Sold for</th>
+                  <th>Worth today</th>
+                  <th>Sell advantage</th>
+                </tr>
+              </thead>
+              <tbody id="holdVsSoldBody"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <section id="data" class="panel" style="display: none;">
+        <div class="panel-head">
+          <div>
+            <h2>Data Completeness</h2>
+            <p class="muted">Uses the activities export and prices.csv from the data folder.</p>
+          </div>
+          <span id="dataStatus" class="pill">Partial</span>
+        </div>
+        <div class="statement-grid compact-grid">
+          <article>
+            <span>Current holdings</span>
+            <strong id="snapshotCount">-</strong>
+          </article>
+          <article>
+            <span>Transaction rows</span>
+            <strong id="transactionCount">-</strong>
+          </article>
+          <article>
+            <span>Price rows</span>
+            <strong id="priceRowCount">-</strong>
+          </article>
+          <article>
+            <span>Benchmark rows</span>
+            <strong id="benchmarkRowCount">-</strong>
+          </article>
+          <article>
+            <span>FX rows</span>
+            <strong id="fxRowCount">-</strong>
+          </article>
+        </div>
+        <div id="statusPanel" class="metric-stack split-stack"></div>
+      </section>
+
+
+      <section id="stockPickingAnalysis" class="stock-picking-analysis" style="display: none;">
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Stock-Picking Scorecard</h2>
+              <p class="muted">Individual stocks only. Excludes ETFs, funds, options, and cash-like holdings.</p>
+            </div>
+            <span class="pill">Stock mode</span>
+          </div>
+          <div id="stockPickingScorecard" class="statement-grid compact-grid stock-score-grid"></div>
+        </article>
+
+
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Pick vs Benchmark Since Buy</h2>
+              <p class="muted">Compares each current stock pick against the selected benchmark from your weighted average buy date.</p>
+            </div>
+            <span class="pill">Entry timing</span>
+          </div>
+          <div id="pickBenchmarkRows" class="pick-benchmark-list"></div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Stock-Picking Attribution</h2>
+              <p class="muted">Shows which picks are driving gains or losses.</p>
+            </div>
+          </div>
+          <div id="stockPickingAttribution" class="stock-attribution"></div>
+        </article>
+      </section>
+
+      <section id="holdings" class="panel">
+        <div class="panel-head table-head">
+          <h2>Holdings</h2>
+          <div class="table-tools">
+            <input id="searchBox" type="search" placeholder="Search symbol, name, exchange">
+            <select id="sortBy">
+              <option value="valueDesc">Value desc</option>
+              <option value="returnDesc">Return desc</option>
+              <option value="returnAsc">Return asc</option>
+              <option value="weightDesc">Weight desc</option>
+              <option value="symbolAsc">Symbol A-Z</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Symbol</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Qty</th>
+                <th>Price</th>
+                <th>Market value</th>
+                <th>Est. CAD</th>
+                <th>Weight</th>
+                <th>Unrealized</th>
+                <th>Days held</th>
+              </tr>
+            </thead>
+            <tbody id="holdingsBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="insights">
+        <article class="panel">
+          <h2>Concentration</h2>
+          <div id="concentrationList" class="rank-list"></div>
+        </article>
+      </section>
+
+      <section class="panel" id="stock-buying-activity-panel">
+        <div class="panel-head">
+          <div>
+            <h2>Stock Buying Activity</h2>
+            <p class="muted">Counts real stock buys only. Dividend reinvestment / auto-buy rows are excluded.</p>
+          </div>
+          <span class="pill">Trading behavior</span>
+        </div>
+        <div id="stockBuyingActivity" class="metric-stack"></div>
+      </section>
+
+      <!-- ═══ ADVANCED ANALYTICS ═══ -->
+      <section class="advanced-command-center" id="advancedAnalytics">
+        <div class="advanced-command-header">
+          <div>
+            <h2>Advanced Analytics</h2>
+            <p>Correlation analysis, Monte Carlo simulation, tax optimization, what-if scenarios, and position sizing — powered by your activity and price history.</p>
+          </div>
+        </div>
+
+        <!-- ─── Correlation Matrix ─── -->
+        <p class="advanced-section-label">Diversification · Correlation</p>
+        <div class="panel wide">
+          <div class="panel-head">
+            <div><h2>Correlation Matrix</h2><p class="muted">Inter-holding return correlations for the selected period. High positive values signal hidden concentration risk.</p></div>
+            <span class="pill">Diversification</span>
+          </div>
+          <div id="correlationHeatmap"></div>
+        </div>
+
+        <!-- ─── Monte Carlo ─── -->
+        <p class="advanced-section-label">Simulation · Projection</p>
+        <div class="advanced-grid">
+          <div class="panel">
+            <div class="panel-head">
+              <div><h2>Monte Carlo Projection</h2><p class="muted">800 simulated paths forward using your historical daily return distribution (1Y TWR).</p></div>
+              <div class="advanced-card-controls">
+                <select id="mcMonths">
+                  <option value="3">3 months</option><option value="6">6 months</option><option value="12" selected>12 months</option><option value="24">24 months</option><option value="36">36 months</option>
+                </select>
+                <button id="mcRun">Re-run</button>
+              </div>
+            </div>
+            <canvas id="mcChart" width="640" height="320"></canvas>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h2>Projection Statistics</h2><span class="pill">Probability-weighted</span></div>
+            <div id="mcStats" class="metric-stack"></div>
+          </div>
+        </div>
+
+        <!-- ─── Rolling Returns Chart ─── -->
+        <p class="advanced-section-label">Consistency · Rolling Returns</p>
+        <div class="panel wide">
+          <div class="panel-head">
+            <div><h2>Rolling Returns Chart</h2><p class="muted">Return consistency over sliding windows. A portfolio that stays positive across different starting points is reliable.</p></div>
+            <div class="advanced-card-controls">
+              <select id="rollingChartWindow">
+                <option value="21">21 days (1M)</option><option value="63" selected>63 days (3M)</option><option value="126">126 days (6M)</option><option value="252">252 days (1Y)</option>
+              </select>
+            </div>
+          </div>
+          <canvas id="rollingChartCanvas" width="900" height="260"></canvas>
+          <p id="rollingChartStats" class="advanced-note"></p>
+        </div>
+
+        <!-- ─── Tax-Loss Harvesting ─── -->
+        <p class="advanced-section-label">Tax Optimization · Harvesting</p>
+        <div class="panel wide">
+          <div class="panel-head">
+            <div><h2>Tax-Loss Harvesting Scanner</h2><p class="muted">Positions with unrealized losses that could be harvested. Checks the Canadian 30-day superficial loss rule.</p></div>
+            <span class="pill">Tax optimization</span>
+          </div>
+          <div id="taxLossSummary" class="metric-stack"></div>
+          <div class="table-wrap compact-table">
+            <table>
+              <thead><tr><th>Symbol</th><th>Unrealized loss</th><th>Loss %</th><th>Weight</th><th>Days held</th><th>Superficial loss risk</th><th>Est. tax savings</th></tr></thead>
+              <tbody id="taxLossBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ─── What-If + Forward Dividends ─── -->
+        <p class="advanced-section-label">Counterfactual · Income Projection</p>
+        <div class="advanced-grid">
+          <div class="panel">
+            <div class="panel-head">
+              <div><h2>What-If Simulator</h2><p class="muted">Replays your exact deposit timing with a different fund. Would VEQT or VFV have done better?</p></div>
+              <span class="pill">Counterfactual</span>
+            </div>
+            <div id="whatIfResults"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head">
+              <div><h2>Forward Dividend Calendar</h2><p class="muted">Projects upcoming payments based on historical frequency and amounts.</p></div>
+              <span class="pill">Income projection</span>
+            </div>
+            <div class="table-wrap compact-table">
+              <table>
+                <thead><tr><th>Symbol</th><th>Freq</th><th>Last paid</th><th>Avg pmt</th><th>Next est.</th><th>Annual</th><th>Yield</th></tr></thead>
+                <tbody id="dividendCalendarBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── Position Sizing + DCA ─── -->
+        <p class="advanced-section-label">Sizing · Cost Basis</p>
+        <div class="advanced-grid">
+          <div class="panel">
+            <div class="panel-head">
+              <div><h2>Position Sizing (Kelly)</h2><p class="muted">Optimal size based on realized win rate and avg win/loss. Half-Kelly is the conservative recommendation.</p></div>
+              <span class="pill">Sizing</span>
+            </div>
+            <div id="positionSizing" class="metric-stack"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head">
+              <div><h2>DCA Cost Basis Tracker</h2><p class="muted">Average cost evolution with each buy/sell for a specific holding.</p></div>
+              <div class="advanced-card-controls">
+                <select id="dcaSymbol"><option value="">Select symbol…</option></select>
+              </div>
+            </div>
+            <div id="dcaChart"></div>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+    <script src="./script.js?v=public-demo"></script>
+  </body>
+</html>
