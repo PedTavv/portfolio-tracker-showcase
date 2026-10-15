@@ -1,4 +1,5 @@
 const benchmarkSymbols = ["^GSPC"];
+const DEMO_ACTIVITIES_FILE = "activities-export-2026-06-01.csv";
 const colors = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#14b8a6", "#8b5cf6", "#84cc16", "#f97316", "#06b6d4", "#ec4899"];
 
 let selectedPeriod = "YTD";
@@ -3940,14 +3941,14 @@ async function loadDefaultData() {
     }
     return null;
   };
-  // Prefer real exports in the git-ignored data/private/ folder; fall back to the demo data.
+  // Prefer a recent real export in the git-ignored data/private/ folder; otherwise use the
+  // bundled demo data, which has a fixed date and must load no matter how old it is.
   let dataDir = "./data/private";
   let activityFilename = await findLatestActivitiesFile(dataDir);
   if (!activityFilename) {
     dataDir = "./data";
-    activityFilename = await findLatestActivitiesFile(dataDir);
+    activityFilename = DEMO_ACTIVITIES_FILE;
   }
-  if (!activityFilename) throw new Error("Missing activities export");
   loadedActivityFilename = activityFilename;
 
   const [activityText, priceText] = await Promise.all([
