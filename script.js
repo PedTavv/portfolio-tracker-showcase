@@ -1950,9 +1950,9 @@ function renderYearlyPortfolioReturns() {
 
   body.innerHTML = rows.map(row => `
     <tr>
-      <td>${row.year}</td>
+      <td>${escapeHtml(row.year)}</td>
       <td class="${row.value >= 0 ? "positive" : "negative"}">${pct(row.value)}</td>
-      <td>${row.start} to ${row.end}${row.partial ? " · partial year" : ""}</td>
+      <td>${escapeHtml(row.start)} to ${escapeHtml(row.end)}${row.partial ? " · partial year" : ""}</td>
     </tr>
   `).join("") || `<tr><td colspan="3">Needs activity and price history.</td></tr>`;
 }
@@ -2180,7 +2180,7 @@ function renderBenchmarkComparison() {
           <article>
             <span>Your return</span>
             <strong class="${twr === null ? "" : twr.value >= 0 ? "positive" : "negative"}">${twr === null ? "Needs data" : pct(twr.value)}</strong>
-            <small>${portfolioViewMode === "stocks" ? `${actualStart} to ${end}` : `${viewLabel} ${periodLabel} return`}</small>
+            <small>${portfolioViewMode === "stocks" ? `${escapeHtml(actualStart)} to ${escapeHtml(end)}` : `${viewLabel} ${periodLabel} return`}</small>
           </article>
           <article>
             <span>${escapeHtml(config.shortLabel)}</span>
@@ -2333,7 +2333,7 @@ function renderTable() {
         <td>${money(row.marketCad)}</td>
         <td>${pct(weight)}<div class="bar"><span style="width:${Math.max(weight * 100, 1)}%"></span></div></td>
         <td class="${pnlValue >= 0 ? "positive" : "negative"}">${money(pnlValue, pnlCurrency)} / ${pct(pnlPct)}</td>
-        <td>${holdingDaysHeld(row.symbol)?.days ?? "-"}<small>${holdingDaysHeld(row.symbol)?.since ? `since ${holdingDaysHeld(row.symbol).since}` : ""}</small></td>
+        <td>${holdingDaysHeld(row.symbol)?.days ?? "-"}<small>${holdingDaysHeld(row.symbol)?.since ? `since ${escapeHtml(holdingDaysHeld(row.symbol).since)}` : ""}</small></td>
       </tr>
     `;
   }).join("");
@@ -2356,16 +2356,16 @@ function renderRiskConsole() {
   document.querySelector("#riskConsole").innerHTML = `
     <div class="metric-row"><span>Diversification index</span><strong>${hhi ? number(1 / hhi, 1) : "-"} effective positions</strong></div>
     <div class="metric-row"><span>Volatility</span><strong>${metrics.observations ? pct(metrics.volatility) : "-"}</strong></div>
-    <div class="metric-row"><span>Max drawdown</span><strong class="${metrics.maxDrawdown?.value < 0 ? "negative" : ""}">${metrics.maxDrawdown ? `${pct(metrics.maxDrawdown.value)} (${metrics.maxDrawdown.peakDate} to ${metrics.maxDrawdown.troughDate})` : "-"}</strong></div>
+    <div class="metric-row"><span>Max drawdown</span><strong class="${metrics.maxDrawdown?.value < 0 ? "negative" : ""}">${metrics.maxDrawdown ? `${pct(metrics.maxDrawdown.value)} (${escapeHtml(metrics.maxDrawdown.peakDate)} to ${escapeHtml(metrics.maxDrawdown.troughDate)})` : "-"}</strong></div>
     <div class="metric-row"><span>Sharpe / Sortino</span><strong>${metrics.sharpe === null ? "-" : number(metrics.sharpe, 2)} / ${metrics.sortino === null ? "-" : number(metrics.sortino, 2)}</strong></div>
     <div class="metric-row"><span>Beta / correlation vs S&P 500</span><strong>${metrics.beta === null ? "-" : number(metrics.beta, 2)} / ${metrics.correlation === null ? "-" : number(metrics.correlation, 2)}</strong></div>
-    <div class="metric-row"><span>Largest position</span><strong>${topRisk}</strong></div>
+    <div class="metric-row"><span>Largest position</span><strong>${escapeHtml(topRisk)}</strong></div>
     <div class="metric-row"><span>CAD-listed exposure</span><strong>${pct(safeDiv(cadListed, summary.totalCad))}</strong></div>
     <div class="metric-row"><span>${portfolioViewMode === "stocks" ? "Excluded cash / funds" : "Cash-like sleeve"}</span><strong>${pct(safeDiv(cashLike, summary.totalCad))}</strong></div>
     <div class="metric-row"><span>Realized P/L</span><strong class="${breakdown.realized >= 0 ? "positive" : "negative"}">${money(breakdown.realized)}</strong></div>
     <div class="metric-row"><span>Residual cash</span><strong>${money(balances.CAD, "CAD")} CAD + ${money(balances.USD, "USD")} USD</strong></div>
     <div class="metric-row"><span>Above cost / below cost</span><strong>${winners.length} / ${negatives.length}</strong></div>
-    <div class="metric-row"><span>Largest open drawdown</span><strong class="negative">${worst ? `${worst.display} ${money(worst.unrealizedCad)}` : "-"}</strong></div>
+    <div class="metric-row"><span>Largest open drawdown</span><strong class="negative">${worst ? `${escapeHtml(worst.display)} ${money(worst.unrealizedCad)}` : "-"}</strong></div>
   `;
 }
 
@@ -2448,7 +2448,7 @@ function renderIncomeDashboard() {
       <div class="metric-row"><span>Forward run-rate</span><strong>${money(forward)}</strong></div>
       <div class="metric-row"><span>Yield on current value</span><strong>${pct(yieldCurrent)}</strong></div>
       <div class="metric-row"><span>Yield on cost</span><strong>${pct(yieldCost)}</strong></div>
-      <div class="metric-row"><span>Best income month</span><strong>${monthly.length ? `${monthly.reduce((best, row) => row.total > best.total ? row : best, monthly[0]).month} ${money(monthly.reduce((best, row) => row.total > best.total ? row : best, monthly[0]).total)}` : "-"}</strong></div>
+      <div class="metric-row"><span>Best income month</span><strong>${monthly.length ? `${escapeHtml(monthly.reduce((best, row) => row.total > best.total ? row : best, monthly[0]).month)} ${money(monthly.reduce((best, row) => row.total > best.total ? row : best, monthly[0]).total)}` : "-"}</strong></div>
     `;
   }
   drawIncomeChart(document.querySelector("#incomeChart"));
@@ -2617,7 +2617,7 @@ function renderStockBuyingActivityMetrics() {
     <div class="metric-row"><span>Total stock buys</span><strong>${number(stats.totalSymbols, 0)} symbols / ${number(stats.totalBuys, 0)} buys</strong></div>
     <div class="metric-row"><span>Total real stock-buy dollars</span><strong>${money(stats.totalCad)}</strong></div>
     <div class="metric-row"><span>Days since last stock buy</span><strong>${stats.lastBuy ? `${number(stats.daysSinceLastBuy, 0)} days` : "-"}</strong></div>
-    <div class="metric-row"><span>Last stock bought</span><strong>${stats.lastBuy ? `${displaySymbol(stats.lastBuy.symbol)} on ${stats.lastBuy.date}` : "-"}</strong></div>
+    <div class="metric-row"><span>Last stock bought</span><strong>${stats.lastBuy ? `${escapeHtml(displaySymbol(stats.lastBuy.symbol))} on ${escapeHtml(stats.lastBuy.date)}` : "-"}</strong></div>
     <div class="metric-row"><span>Stocks bought by year</span><strong>${stats.years.length ? stats.years.map(row => `${row.year}: ${row.symbolCount} symbols / ${row.count} buys`).join(" · ") : "-"}</strong></div>
   `;
 }
@@ -2676,8 +2676,8 @@ function renderRealizedGains() {
     summaryNode.innerHTML = `
       <article><span>Total realized P/L</span><strong class="${totalPnl >= 0 ? "positive" : "negative"}">${money(totalPnl)}</strong><small>${number(realizedRows.length, 0)} closed symbols</small></article>
       <article><span>Avg realized return</span><strong class="${avgReturn >= 0 ? "positive" : "negative"}">${signedPct(avgReturn)}</strong><small>Weighted by cost basis</small></article>
-      <article><span>Best realized return</span><strong class="${bestReturn && realizedReturnFor(bestReturn) >= 0 ? "positive" : "negative"}">${bestReturn ? `${bestReturn.symbol} ${signedPct(realizedReturnFor(bestReturn))}` : "-"}</strong><small>${bestReturn ? money(bestReturn.amount) : "No closed gains"}</small></article>
-      <article><span>Worst realized return</span><strong class="${worstReturn && realizedReturnFor(worstReturn) >= 0 ? "positive" : "negative"}">${worstReturn ? `${worstReturn.symbol} ${signedPct(realizedReturnFor(worstReturn))}` : "-"}</strong><small>${worstReturn ? money(worstReturn.amount) : "No closed losses"}</small></article>
+      <article><span>Best realized return</span><strong class="${bestReturn && realizedReturnFor(bestReturn) >= 0 ? "positive" : "negative"}">${bestReturn ? `${escapeHtml(bestReturn.symbol)} ${signedPct(realizedReturnFor(bestReturn))}` : "-"}</strong><small>${bestReturn ? money(bestReturn.amount) : "No closed gains"}</small></article>
+      <article><span>Worst realized return</span><strong class="${worstReturn && realizedReturnFor(worstReturn) >= 0 ? "positive" : "negative"}">${worstReturn ? `${escapeHtml(worstReturn.symbol)} ${signedPct(realizedReturnFor(worstReturn))}` : "-"}</strong><small>${worstReturn ? money(worstReturn.amount) : "No closed losses"}</small></article>
       <article><span>Realized win rate</span><strong>${pct(winRate)}</strong><small>${number(realizedTradeRows.length, 0)} closed trades</small></article>
       <article><span>Avg holding period</span><strong>${number(avgHoldingDays, 0)} days</strong><small>Weighted by shares sold</small></article>
     `;
@@ -2692,8 +2692,8 @@ function renderRealizedGains() {
 
     holdVsSoldSummaryNode.innerHTML = `
       <div class="metric-row"><span>Net sell advantage</span><strong class="${totalSellAdvantage >= 0 ? "positive" : "negative"}">${money(totalSellAdvantage)}</strong></div>
-      <div class="metric-row"><span>Best sell timing</span><strong class="${bestSellTiming && bestSellTiming.sellAdvantage >= 0 ? "positive" : "negative"}">${bestSellTiming ? `${bestSellTiming.symbol} ${money(bestSellTiming.sellAdvantage)}` : "-"}</strong></div>
-      <div class="metric-row"><span>Most upside left</span><strong class="${mostLeftUpside && mostLeftUpside.sellAdvantage >= 0 ? "positive" : "negative"}">${mostLeftUpside ? `${mostLeftUpside.symbol} ${money(mostLeftUpside.sellAdvantage)}` : "-"}</strong></div>
+      <div class="metric-row"><span>Best sell timing</span><strong class="${bestSellTiming && bestSellTiming.sellAdvantage >= 0 ? "positive" : "negative"}">${bestSellTiming ? `${escapeHtml(bestSellTiming.symbol)} ${money(bestSellTiming.sellAdvantage)}` : "-"}</strong></div>
+      <div class="metric-row"><span>Most upside left</span><strong class="${mostLeftUpside && mostLeftUpside.sellAdvantage >= 0 ? "positive" : "negative"}">${mostLeftUpside ? `${escapeHtml(mostLeftUpside.symbol)} ${money(mostLeftUpside.sellAdvantage)}` : "-"}</strong></div>
     `;
   }
 
@@ -2774,9 +2774,9 @@ function renderRealizedGains() {
 
     tradeNode.innerHTML = `
       <div class="metric-row"><span>Mode</span><strong>${portfolioViewMode === "stocks" ? "Individual stocks only" : "Total portfolio"}</strong></div>
-      <div class="metric-row"><span>Best realized trade</span><strong class="positive">${best ? `${best.symbol} ${money(best.amount)}` : "-"}</strong></div>
-      <div class="metric-row"><span>Worst closed trade</span><strong class="negative">${worst ? `${worst.symbol} ${money(worst.amount)}` : "-"}</strong></div>
-      <div class="metric-row"><span>Most actively traded symbol</span><strong>${most ? `${most.symbol} (${most.count} real trades)` : "-"}</strong></div>
+      <div class="metric-row"><span>Best realized trade</span><strong class="positive">${best ? `${escapeHtml(best.symbol)} ${money(best.amount)}` : "-"}</strong></div>
+      <div class="metric-row"><span>Worst closed trade</span><strong class="negative">${worst ? `${escapeHtml(worst.symbol)} ${money(worst.amount)}` : "-"}</strong></div>
+      <div class="metric-row"><span>Most actively traded symbol</span><strong>${most ? `${escapeHtml(most.symbol)} (${most.count} real trades)` : "-"}</strong></div>
       <div class="metric-row"><span>Dividend reinvestment buys excluded</span><strong>${number(activities.filter(isDividendFundedBuy).length, 0)}</strong></div>
       <div class="metric-row"><span>Average buy / sell</span><strong>${most ? `${money(safeDiv(most.buyValue, most.buyQty))} / ${money(safeDiv(most.sellValue, most.sellQty))}` : "-"}</strong></div>
       <div class="metric-row"><span>Realized win rate</span><strong>${pct(winRate)}</strong></div>
@@ -2856,14 +2856,14 @@ function renderDataCompleteness() {
     statusNode.innerHTML = `
       <div class="metric-row"><span>Activities export loaded</span><strong>${activities.length ? "Yes" : "No"}</strong></div>
       <div class="metric-row"><span>Prices loaded</span><strong>${priceRows.length ? "Yes" : "No"}</strong></div>
-      <div class="metric-row"><span>Latest price date</span><strong>${latestDate()}</strong></div>
-      <div class="metric-row"><span>Missing current prices</span><strong>${missingPrices.length ? missingPrices.join(", ") : "None"}</strong></div>
-      <div class="metric-row"><span>Snapshot price fallback</span><strong>${snapshotPriceFallback.length ? snapshotPriceFallback.join(", ") : "None"}</strong></div>
-      <div class="metric-row"><span>Missing historical prices</span><strong>${missingHistorical.length ? missingHistorical.slice(0, 10).join(", ") : "None"}</strong></div>
-      <div class="metric-row"><span>Ignored unpriced instruments</span><strong>${ignoredHistorical.length ? ignoredHistorical.slice(0, 10).join(", ") : "None"}</strong></div>
-      <div class="metric-row"><span>Quantity reconciliation</span><strong>${quantityMismatches.length ? quantityMismatches.join(", ") : "Matched"}</strong></div>
-      <div class="metric-row"><span>Book-value reconciliation</span><strong>${bookMismatches.length ? bookMismatches.join(", ") : "Matched"}</strong></div>
-      <div class="metric-row"><span>Snapshot-only symbols</span><strong>${snapshotOnlySymbols.length ? snapshotOnlySymbols.join(", ") : "None"}</strong></div>
+      <div class="metric-row"><span>Latest price date</span><strong>${escapeHtml(latestDate())}</strong></div>
+      <div class="metric-row"><span>Missing current prices</span><strong>${missingPrices.length ? escapeHtml(missingPrices.join(", ")) : "None"}</strong></div>
+      <div class="metric-row"><span>Snapshot price fallback</span><strong>${snapshotPriceFallback.length ? escapeHtml(snapshotPriceFallback.join(", ")) : "None"}</strong></div>
+      <div class="metric-row"><span>Missing historical prices</span><strong>${missingHistorical.length ? escapeHtml(missingHistorical.slice(0, 10).join(", ")) : "None"}</strong></div>
+      <div class="metric-row"><span>Ignored unpriced instruments</span><strong>${ignoredHistorical.length ? escapeHtml(ignoredHistorical.slice(0, 10).join(", ")) : "None"}</strong></div>
+      <div class="metric-row"><span>Quantity reconciliation</span><strong>${quantityMismatches.length ? escapeHtml(quantityMismatches.join(", ")) : "Matched"}</strong></div>
+      <div class="metric-row"><span>Book-value reconciliation</span><strong>${bookMismatches.length ? escapeHtml(bookMismatches.join(", ")) : "Matched"}</strong></div>
+      <div class="metric-row"><span>Snapshot-only symbols</span><strong>${snapshotOnlySymbols.length ? escapeHtml(snapshotOnlySymbols.join(", ")) : "None"}</strong></div>
       <div class="metric-row"><span>Daily equity rows</span><strong>${number(equityRows, 0)}</strong></div>
       <div class="metric-row"><span>Metadata / target rows</span><strong>${symbolMetadata.size || Object.keys(fallbackMetadata).length} / ${targets.length}</strong></div>
     `;
@@ -3083,7 +3083,7 @@ function renderPickVsBenchmark() {
       <div class="pick-benchmark-row">
         <div>
           <strong>${escapeHtml(row.symbol)}</strong>
-          <small>${escapeHtml(row.name)} · since ${row.since} · ${number(row.days, 0)} days</small>
+          <small>${escapeHtml(row.name)} · since ${escapeHtml(row.since)} · ${number(row.days, 0)} days</small>
         </div>
 
         <div class="pick-benchmark-metrics">
@@ -3426,10 +3426,10 @@ function renderAdvancedAttribution() {
     const rows = drawdownRecoveryRows();
     drawdownBody.innerHTML = rows.map(row => `
       <tr>
-        <td>${row.peakDate}</td>
-        <td>${row.troughDate}</td>
+        <td>${escapeHtml(row.peakDate)}</td>
+        <td>${escapeHtml(row.troughDate)}</td>
         <td class="negative">${pct(row.drawdown)}</td>
-        <td>${row.recovered ? row.recoveryDate : "Open"}</td>
+        <td>${row.recovered ? escapeHtml(row.recoveryDate) : "Open"}</td>
         <td>${row.daysToRecover === null ? "-" : number(row.daysToRecover, 0)}</td>
       </tr>
     `).join("") || `<tr><td colspan="5">No material drawdowns detected.</td></tr>`;
@@ -3528,7 +3528,7 @@ function renderCorrelationMatrix() {
     row.forEach((val, j) => {
       const bg = val === null ? 'rgba(255,255,255,0.04)' : val >= 0 ? `rgba(16,185,129,${Math.abs(val) * 0.8})` : `rgba(239,68,68,${Math.abs(val) * 0.8})`;
       const text = val === null ? '' : (val * 100).toFixed(0);
-      html += `<div style="width:${size}px;height:${size}px;background:${bg};display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;border:1px solid rgba(0,0,0,0.15);border-radius:2px;cursor:default;transition:transform 0.12s ease;" title="${data.symbols[i]} × ${data.symbols[j]}: ${val === null ? 'N/A' : val.toFixed(3)}">${text}</div>`;
+      html += `<div style="width:${size}px;height:${size}px;background:${bg};display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;border:1px solid rgba(0,0,0,0.15);border-radius:2px;cursor:default;transition:transform 0.12s ease;" title="${escapeHtml(data.symbols[i])} × ${escapeHtml(data.symbols[j])}: ${val === null ? 'N/A' : val.toFixed(3)}">${text}</div>`;
     });
     html += '</div>';
   });
@@ -3724,7 +3724,7 @@ function renderTaxLossHarvesting() {
     <td class="symbol">${escapeHtml(c.symbol)}</td>
     <td class="negative">${money(c.unrealizedLoss)}</td><td class="negative">${pct(c.lossPct)}</td>
     <td>${pct(c.weight)}</td><td>${c.daysHeld !== null ? `${number(c.daysHeld, 0)}d` : "-"}</td>
-    <td class="${c.superficialRisk ? "negative" : "positive"}">${c.superficialRisk ? `⚠ Yes (${c.recentBuyDates.join(", ")})` : "Clear"}</td>
+    <td class="${c.superficialRisk ? "negative" : "positive"}">${c.superficialRisk ? `⚠ Yes (${escapeHtml(c.recentBuyDates.join(", "))})` : "Clear"}</td>
     <td class="positive">~${money(c.taxSavingsEstimate)}</td></tr>`).join("") +
     `<tr style="border-top:2px solid rgba(255,255,255,0.15);font-weight:700;"><td>Total harvestable</td><td class="negative">${money(totalLoss)}</td><td colspan="4"></td><td class="positive">~${money(totalSavings)}</td></tr>`;
   const summary = document.querySelector("#taxLossSummary");
@@ -3800,8 +3800,8 @@ function renderDividendCalendar() {
   if (!rows.length) { node.innerHTML = '<tr><td colspan="7">No dividend history to project.</td></tr>'; return; }
   const totalAnnual = rows.reduce((s, r) => s + r.annualizedIncome, 0);
   node.innerHTML = rows.map(r => `<tr>
-    <td class="symbol">${escapeHtml(r.symbol)}</td><td>${r.frequency}</td><td>${r.lastDate}</td>
-    <td class="positive">${money(r.recentAvg)}</td><td>${r.nextEstimatedDate} <small>(${r.daysUntilNext}d)</small></td>
+    <td class="symbol">${escapeHtml(r.symbol)}</td><td>${escapeHtml(r.frequency)}</td><td>${escapeHtml(r.lastDate)}</td>
+    <td class="positive">${money(r.recentAvg)}</td><td>${escapeHtml(r.nextEstimatedDate)} <small>(${r.daysUntilNext}d)</small></td>
     <td class="positive">${money(r.annualizedIncome)}</td><td>${r.yieldEstimate !== null ? pct(r.yieldEstimate) : "-"}</td>
   </tr>`).join("") + `<tr style="border-top:2px solid rgba(255,255,255,0.15);font-weight:700;"><td>Total projected annual</td><td colspan="4"></td><td class="positive">${money(totalAnnual)}</td><td></td></tr>`;
 }
@@ -3874,7 +3874,7 @@ function renderDcaTracker() {
     <div class="metric-row"><span>Total invested (CAD)</span><strong>${money(latest.totalCost)}</strong></div></div>
     <div class="table-wrap compact-table" style="max-height:300px;overflow-y:auto;"><table>
     <thead><tr><th>Date</th><th>Action</th><th>Shares</th><th>Avg Cost</th><th>Total Cost</th></tr></thead>
-    <tbody>${points.map(p => `<tr><td>${p.date}</td><td class="${p.action === "BUY" ? "positive" : "negative"}">${p.action}</td><td>${number(p.quantity, 4)}</td><td>${money(p.avgCost)}</td><td>${money(p.totalCost)}</td></tr>`).join("")}</tbody></table></div>`;
+    <tbody>${points.map(p => `<tr><td>${escapeHtml(p.date)}</td><td class="${p.action === "BUY" ? "positive" : "negative"}">${escapeHtml(p.action)}</td><td>${number(p.quantity, 4)}</td><td>${money(p.avgCost)}</td><td>${money(p.totalCost)}</td></tr>`).join("")}</tbody></table></div>`;
 }
 
 function renderAdvancedAnalytics() {
@@ -3920,7 +3920,7 @@ function render() {
 
 async function loadDefaultData() {
   const optionalText = path => fetch(path, { cache: "no-store" }).then(response => response.ok ? response.text() : null).catch(() => null);
-  const findLatestActivitiesFile = async () => {
+  const findLatestActivitiesFile = async dir => {
     const formatDate = date => date.toISOString().slice(0, 10);
     const today = new Date();
     const candidates = [];
@@ -3932,7 +3932,7 @@ async function loadDefaultData() {
 
     for (const name of [...new Set(candidates)]) {
       try {
-        const response = await fetch(`./data/${name}`, { cache: "no-store" });
+        const response = await fetch(`${dir}/${name}`, { cache: "no-store" });
         if (response.ok) return name;
       } catch (error) {
         // Keep probing candidate filenames.
@@ -3940,25 +3940,31 @@ async function loadDefaultData() {
     }
     return null;
   };
-  const activityFilename = await findLatestActivitiesFile();
+  // Prefer real exports in the git-ignored data/private/ folder; fall back to the demo data.
+  let dataDir = "./data/private";
+  let activityFilename = await findLatestActivitiesFile(dataDir);
+  if (!activityFilename) {
+    dataDir = "./data";
+    activityFilename = await findLatestActivitiesFile(dataDir);
+  }
   if (!activityFilename) throw new Error("Missing activities export");
   loadedActivityFilename = activityFilename;
 
   const [activityText, priceText] = await Promise.all([
-    fetch(`./data/${activityFilename}`, { cache: "no-store" }).then(response => {
+    fetch(`${dataDir}/${activityFilename}`, { cache: "no-store" }).then(response => {
       if (!response.ok) throw new Error(`Missing ${activityFilename}`);
       return response.text();
     }),
-    fetch("./data/prices.csv", { cache: "no-store" }).then(response => {
+    fetch(`${dataDir}/prices.csv`, { cache: "no-store" }).then(response => {
       if (!response.ok) throw new Error("Missing prices.csv");
       return response.text();
     })
   ]);
   const [metadataText, targetText, notesText, holdingsText] = await Promise.all([
-    optionalText("./data/symbol-metadata.csv"),
-    optionalText("./data/targets.csv"),
-    optionalText("./data/manual-notes.csv"),
-    optionalText("./data/holdings-current.csv").then(text => text || optionalText("./data/holdings.csv"))
+    optionalText(`${dataDir}/symbol-metadata.csv`),
+    optionalText(`${dataDir}/targets.csv`),
+    optionalText(`${dataDir}/manual-notes.csv`),
+    optionalText(`${dataDir}/holdings-current.csv`).then(text => text || optionalText(`${dataDir}/holdings.csv`))
   ]);
   symbolMetadata = metadataText ? parseMetadata(metadataText) : new Map();
   targets = targetText ? parseTargets(targetText) : fallbackTargets;

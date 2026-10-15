@@ -16,10 +16,10 @@ This public version ships with synthetic demo data only. It is intended as a tem
 ## Run
 
 ```bash
-python3 -m http.server 4173
+python3 -m http.server 4173 --bind 127.0.0.1
 ```
 
-Open `http://localhost:4173/`.
+Open `http://127.0.0.1:4173/`. Binding to `127.0.0.1` keeps the server (and your data files) off your local network.
 
 You can also run the helper script:
 
@@ -42,9 +42,11 @@ The helper starts the app on port `8081` and opens the browser.
 
 Do not commit real brokerage exports, account numbers, statements, or full trading history to a public repository.
 
-For private use, place your own export files in `data/` using the same column formats, then run the local server. Keep real files ignored or outside the repo.
+For private use, put your own files in `data/private/` (create it if needed) using the same filenames and column formats as the demo files in `data/`. That folder is git-ignored, so nothing in it can be committed by accident.
 
-The included `.gitignore` blocks common real export filenames by default while allowing the synthetic demo files to remain committed.
+When `data/private/` contains an `activities-export-YYYY-MM-DD.csv` from the last 90 days, the app loads all of its data from that folder (activities, `prices.csv`, and the optional metadata, targets, notes, and holdings files). Otherwise it falls back to the synthetic demo data in `data/`. Copy any demo files you want to reuse (for example `symbol-metadata.csv` or `targets.csv`) into `data/private/`. To refresh prices for your private data, run `python3 scripts/update_prices_auto.py --data-dir data/private`.
+
+Never save real data over the demo filenames in `data/`: those files are tracked and would be committed. The `.gitignore` also blocks common real export filenames in `data/` as a backstop.
 
 ## Notes
 

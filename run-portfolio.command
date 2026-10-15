@@ -4,7 +4,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PORT="${1:-8081}"
-URL="http://localhost:${PORT}"
+URL="http://127.0.0.1:${PORT}"
 
 cd "$ROOT_DIR"
 
@@ -13,7 +13,7 @@ if lsof -iTCP:"$PORT" -sTCP:LISTEN >/dev/null 2>&1; then
   exit 0
 fi
 
-nohup python3 -m http.server "$PORT" >/tmp/portfolio-tracker-http.log 2>&1 &
+nohup python3 -m http.server "$PORT" --bind 127.0.0.1 >/tmp/portfolio-tracker-http.log 2>&1 &
 
 for _ in {1..30}; do
   if curl -sf "$URL" >/dev/null 2>&1; then

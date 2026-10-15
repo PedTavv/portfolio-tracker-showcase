@@ -8,3 +8,6 @@ data/holdings-report-*.csv
 !data/holdings-current.csv
 !data/holdings.csv
 *.log
+
+# Real exports and private data live here and are never committed.
+data/private/
