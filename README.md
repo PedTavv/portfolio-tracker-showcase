@@ -4,6 +4,12 @@ A static portfolio tracker demo that reconstructs holdings, allocation, returns,
 
 This public version ships with synthetic demo data only. It is intended as a template for people who want to build their own personal tracker without publishing private brokerage exports.
 
+![Portfolio dashboard: KPI cards, period selector and benchmark comparison](docs/images/overview.png)
+
+![Allocation donut, gain/loss bars, portfolio timeline and currency exposure](docs/images/charts.png)
+
+*Screenshots show the bundled synthetic demo data.*
+
 ## Features
 
 - Reconstructs positions from an activity ledger.
